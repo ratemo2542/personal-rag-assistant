@@ -5,8 +5,8 @@ import math
 import sqlite3
 import uuid
 from dataclasses import dataclass
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Sequence
 
 
 @dataclass(frozen=True, slots=True)

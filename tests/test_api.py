@@ -109,3 +109,25 @@ def test_ask_returns_insufficient_context_without_calling_model(monkeypatch, tmp
     assert response.status_code == 200
     assert response.json()["sources"] == []
     assert "couldn't find relevant information" in response.json()["answer"]
+
+
+def test_document_library_lists_and_deletes_ingested_files(monkeypatch, tmp_path) -> None:
+    from app import main
+
+    class FakeEmbedder:
+        def embed(self, texts):
+            return [[1.0, 0.0] for _ in texts]
+
+    monkeypatch.setattr(main, "embedder", FakeEmbedder())
+    monkeypatch.setattr(main, "DATABASE_PATH", str(tmp_path / "library.sqlite3"))
+    main.get_store().add_document("first.txt", [("first document", [1.0, 0.0])])
+
+    listing = client.get("/documents")
+    assert listing.status_code == 200
+    assert listing.json()["documents"][0]["filename"] == "first.txt"
+    document_id = listing.json()["documents"][0]["id"]
+
+    deleted = client.delete(f"/documents/{document_id}")
+    assert deleted.status_code == 200
+    assert client.get("/documents").json()["documents"] == []
+    assert client.delete(f"/documents/{document_id}").status_code == 404

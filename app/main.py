@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 from app.chunking import split_text
 from app.documents import DocumentError, extract_text
 from app.embeddings import EmbeddingError, SentenceTransformerEmbedder
+from app.generation import GenerationError, OllamaGenerator
 from app.storage import SQLiteVectorStore
 
 app = FastAPI(
@@ -118,3 +119,43 @@ async def search_documents(request: SearchRequest) -> dict[str, list[dict[str, s
             for result in results
         ]
     }
+
+
+
+@app.post("/ask", tags=["generation"])
+async def ask_documents(request: AskRequest) -> dict[str, object]:
+    """Answer from retrieved passages and return the exact sources used."""
+    try:
+        query_vector = embedder.embed([request.query])[0]
+        retrieved = get_store().search(query_vector, limit=request.limit)
+    except EmbeddingError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except (OSError, ValueError, IndexError) as exc:
+        raise HTTPException(status_code=400, detail="Could not retrieve document context.") from exc
+
+    sources = [
+        {
+            "document_id": result.document_id,
+            "filename": result.filename,
+            "chunk_index": result.chunk_index,
+            "text": result.text,
+            "score": round(result.score, 6),
+        }
+        for result in retrieved
+        if result.score >= 0.2
+    ]
+    if not sources:
+        return {
+            "answer": "I couldn't find relevant information in your documents.",
+            "sources": [],
+        }
+
+    try:
+        answer = await generator.answer(request.query, sources)
+    except GenerationError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="Local answer generation is unavailable. Check that Ollama is running and the model is installed.",
+        ) from exc
+
+    return {"answer": answer, "sources": sources}

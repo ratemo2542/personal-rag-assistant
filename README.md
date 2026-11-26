@@ -26,7 +26,7 @@ A local-first assistant for asking questions about your own documents. It is des
 
 ## Initial setup
 
-Requirements: Python 3.11 or newer.
+Requirements: Python 3.11 or newer, Node.js 22 or newer, and Ollama for local answer generation.
 
 ```bash
 python -m venv .venv
@@ -35,6 +35,16 @@ python -m pip install -e ".[dev]"
 uvicorn app.main:app --reload
 ```
 
+In a second terminal, start the web interface:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open the local Vite address printed in the terminal (normally `http://127.0.0.1:5173`). Start Ollama separately and pull the configured model before asking questions.
+
 The API will be available at `http://127.0.0.1:8000`; interactive API documentation is at `/docs`.\n\n- `POST /documents/preview` extracts a safe text preview without saving it.\n- `POST /documents/ingest` extracts, chunks, embeds, and saves a document.\n- `POST /search` returns the closest stored passages with source filenames and chunk indexes.\n- `POST /ask` generates an answer from relevant retrieved passages through local Ollama and returns the supporting sources.\n- `GET /health` checks API availability.\n\nTo enable local semantic embeddings, install the optional model dependencies with:\n\n```bash\npython -m pip install -e ".[embeddings]"\n```\n\nThe first embedding run downloads the configured Sentence Transformers model. The SQLite store persists document metadata, chunk text, and vectors in a local database file; protect that file like any other personal document store. Search uses cosine ranking over stored vectors. Answer generation requires Ollama to be installed and running locally, with the configured model pulled. The model is instructed to treat retrieved document text as untrusted reference material rather than executable instructions.
 
 ## Quality and security principles
@@ -42,6 +52,7 @@ The API will be available at `http://127.0.0.1:8000`; interactive API documentat
 - Treat uploaded documents as untrusted input.
 - Enforce file type and size limits; never trust a filename or client-supplied MIME type alone.
 - Keep secrets out of source control and provide configuration through environment variables.
+- The development API allows browser requests only from the configured local frontend origins.
 - Do not claim an answer is supported unless retrieved source passages are available.
 - Test failure paths as well as successful requests.
 - Do not expose this development API publicly without authentication, upload isolation, and deployment hardening.

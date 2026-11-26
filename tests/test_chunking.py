@@ -13,7 +13,7 @@ def test_short_text_is_one_chunk_with_exact_offsets() -> None:
     chunks = split_text("small document", chunk_size=30, overlap=5)
     assert len(chunks) == 1
     assert chunks[0].text == "small document"
-    assert (chunks[0].start, chunks[0].end) == (0, 15)
+    assert (chunks[0].start, chunks[0].end) == (0, 14)
 
 
 def test_long_text_chunks_overlap_and_keep_source_offsets() -> None:

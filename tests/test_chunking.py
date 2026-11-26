@@ -1,3 +1,5 @@
+from itertools import pairwise
+
 import pytest
 
 from app.chunking import split_text
@@ -22,7 +24,7 @@ def test_long_text_chunks_overlap_and_keep_source_offsets() -> None:
     for chunk in chunks:
         assert text[chunk.start:chunk.end] == chunk.text
         assert len(chunk.text) <= 80
-    for previous, current in zip(chunks, chunks[1:]):
+    for previous, current in pairwise(chunks):
         assert current.start < previous.end
 
 

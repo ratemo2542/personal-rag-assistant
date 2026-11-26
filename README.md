@@ -4,7 +4,7 @@ A local-first assistant for asking questions about your own documents. It is des
 
 > **Status: early development.** Document ingestion, local embeddings, SQLite retrieval, Ollama answer generation, and a React interface are implemented. Authentication, multi-user isolation, hardened deployment, and production hosting are still in progress. Do not expose this service publicly.
 
-## Planned architecture
+## Current architecture
 
 - **Frontend:** React + Vite
 - **API:** Python + FastAPI
@@ -15,13 +15,11 @@ A local-first assistant for asking questions about your own documents. It is des
 
 ## Development phases
 
-1. Build and test the API foundation.
-2. Validate and extract uploaded documents.
-3. Split documents, generate local embeddings, and persist them in SQLite.
-4. Retrieve relevant passages through the `/search` endpoint with document and chunk references.
-5. Add grounded answer generation through a local Ollama model.
-6. Build and verify the React chat interface.
-7. Add authentication, multi-user isolation, observability, and production deployment hardening.
+1. API foundation, document parsing, chunking, local embeddings, and SQLite retrieval.
+2. Source-grounded answer generation through local Ollama.
+3. React document upload and chat interface.
+4. Expand integration and security testing.
+5. Add authentication, multi-user isolation, observability, and production deployment hardening.
 
 ## Initial setup
 
@@ -72,4 +70,4 @@ The first embedding run downloads the configured Sentence Transformers model. Th
 
 ## License
 
-License to be selected before public reuse.
+MIT. See [LICENSE](LICENSE).

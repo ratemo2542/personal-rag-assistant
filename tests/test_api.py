@@ -14,7 +14,7 @@ def test_health_returns_ok() -> None:
 def test_preview_accepts_utf8_text() -> None:
     response = client.post(
         "/documents/preview",
-        files={"file": ("notes.txt", "hello RAG".encode(), "text/plain")},
+        files={"file": ("notes.txt", b"hello RAG", "text/plain")},
     )
     assert response.status_code == 200
     assert response.json()["text"] == "hello RAG"

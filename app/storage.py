@@ -23,8 +23,9 @@ class SQLiteVectorStore:
 
     def __init__(self, database_path: str | Path) -> None:
         self.database_path = str(database_path)
-        if self.database_path != ":memory:":
-            Path(self.database_path).parent.mkdir(parents=True, exist_ok=True)
+        if self.database_path == ":memory:":
+            raise ValueError("Use a file-backed SQLite database for persistent storage.")
+        Path(self.database_path).parent.mkdir(parents=True, exist_ok=True)
         self._initialize()
 
     def _connect(self) -> sqlite3.Connection:

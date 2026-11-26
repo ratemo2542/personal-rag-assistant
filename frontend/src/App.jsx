@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const API = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
@@ -11,6 +11,34 @@ export default function App() {
   const [messages, setMessages] = useState([]);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+  const [documents, setDocuments] = useState([]);
+  const [loadingDocuments, setLoadingDocuments] = useState(true);
+
+  async function loadDocuments() {
+    try {
+      const response = await fetch(`${API}/documents`);
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || "Could not load documents.");
+      setDocuments(data.documents || []);
+    } catch (err) {
+      setError(err.message || "Could not load the document library.");
+    } finally {
+      setLoadingDocuments(false);
+    }
+  }
+
+  useEffect(() => { loadDocuments(); }, []);
+
+  async function deleteDocument(id) {
+    try {
+      const response = await fetch(`${API}/documents/${id}`, { method: "DELETE" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.detail || "Could not delete document.");
+      await loadDocuments();
+    } catch (err) {
+      setError(err.message || "Could not delete document.");
+    }
+  }
 
   async function uploadDocument(event) {
     event.preventDefault();

@@ -2,7 +2,7 @@
 
 A local-first assistant for asking questions about your own documents. It is designed to retrieve relevant passages before generating an answer, and to show the sources used.
 
-> **Status: early development.** This repository is a scaffold, not a production-ready application. Authentication, hardened upload isolation, persistent vector storage, and a complete web interface are not implemented yet.
+> **Status: early development.** The API foundation, document preview, chunking, SQLite vector persistence, and a lazy local embedding adapter are implemented. End-to-end ingestion, answer generation, authentication, hardened upload isolation, and the web interface are still in progress. Do not expose this service publicly.
 
 ## Planned architecture
 
@@ -34,7 +34,7 @@ python -m pip install -e ".[dev]"
 uvicorn app.main:app --reload
 ```
 
-The API will be available at `http://127.0.0.1:8000`; interactive API documentation is at `/docs`.
+The API will be available at `http://127.0.0.1:8000`; interactive API documentation is at `/docs`.\n\nTo enable local semantic embeddings, install the optional model dependencies with:\n\n```bash\npython -m pip install -e ".[embeddings]"\n```\n\nThe first embedding run downloads the configured Sentence Transformers model. The SQLite store persists document metadata, chunk text, and vectors in a local database file; protect that file like any other personal document store.
 
 ## Quality and security principles
 

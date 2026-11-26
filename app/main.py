@@ -40,7 +40,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
     allow_credentials=False,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "DELETE"],
     allow_headers=["Content-Type"],
 )
 
@@ -186,3 +186,25 @@ async def ask_documents(request: AskRequest) -> dict[str, object]:
         ) from exc
 
     return {"answer": answer, "sources": sources}
+
+
+
+@app.get("/documents", tags=["documents"])
+async def list_documents() -> dict[str, list[dict[str, str | int]]]:
+    """List indexed documents and their chunk counts."""
+    try:
+        return {"documents": get_store().list_documents()}
+    except OSError as exc:
+        raise HTTPException(status_code=500, detail="Could not read the document library.") from exc
+
+
+@app.delete("/documents/{document_id}", tags=["documents"])
+async def delete_document(document_id: str) -> dict[str, str]:
+    """Delete a document and all of its indexed chunks."""
+    try:
+        deleted = get_store().delete_document(document_id)
+    except OSError as exc:
+        raise HTTPException(status_code=500, detail="Could not update the document library.") from exc
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Document not found.")
+    return {"status": "deleted", "document_id": document_id}

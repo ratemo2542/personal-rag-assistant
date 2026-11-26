@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from typing import Annotated
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 
@@ -20,7 +21,7 @@ async def health() -> dict[str, str]:
 
 
 @app.post("/documents/preview", tags=["documents"])
-async def preview_document(file: UploadFile = File(...)) -> dict[str, str | int]:
+async def preview_document(file: Annotated[UploadFile, File()]) -> dict[str, str | int]:
     """Extract a bounded document preview; this endpoint does not persist uploads."""
     filename = file.filename or ""
     if not filename:

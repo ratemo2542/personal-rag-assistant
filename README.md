@@ -2,7 +2,7 @@
 
 A local-first assistant for asking questions about your own documents. It is designed to retrieve relevant passages before generating an answer, and to show the sources used.
 
-> **Status: early development.** The API foundation, document preview, chunking, SQLite vector persistence, and a lazy local embedding adapter are implemented. End-to-end ingestion, answer generation, authentication, hardened upload isolation, and the web interface are still in progress. Do not expose this service publicly.
+> **Status: early development.** Document ingestion, local embeddings, SQLite retrieval, Ollama answer generation, and a React interface are implemented. Authentication, multi-user isolation, hardened deployment, and production hosting are still in progress. Do not expose this service publicly.
 
 ## Planned architecture
 
@@ -10,8 +10,7 @@ A local-first assistant for asking questions about your own documents. It is des
 - **API:** Python + FastAPI
 - **Document parsing:** PyMuPDF for PDFs; python-docx for DOCX; plain text and Markdown
 - **Chunking and embeddings:** Sentence Transformers
-- **Vector search:** ChromaDB
-- **Metadata:** SQLite
+- **Vector search and metadata:** SQLite with cosine-similarity ranking
 - **Generation:** Ollama for local inference, with a provider interface so a hosted model can be added later
 
 ## Development phases
@@ -21,8 +20,8 @@ A local-first assistant for asking questions about your own documents. It is des
 3. Split documents, generate local embeddings, and persist them in SQLite.
 4. Retrieve relevant passages through the `/search` endpoint with document and chunk references.
 5. Add grounded answer generation through a local Ollama model.
-6. Add the React chat and document-management interface.
-7. Add authentication, security hardening, observability, and deployment documentation.
+6. Build and verify the React chat interface.
+7. Add authentication, multi-user isolation, observability, and production deployment hardening.
 
 ## Initial setup
 
@@ -43,9 +42,23 @@ npm install
 npm run dev
 ```
 
-Open the local Vite address printed in the terminal (normally `http://127.0.0.1:5173`). Start Ollama separately and pull the configured model before asking questions.
+Open the local Vite address printed in the terminal (normally `http://127.0.0.1:5173`). Start Ollama separately and pull the configured model before asking questions with `ollama pull llama3.2:3b`.
 
-The API will be available at `http://127.0.0.1:8000`; interactive API documentation is at `/docs`.\n\n- `POST /documents/preview` extracts a safe text preview without saving it.\n- `POST /documents/ingest` extracts, chunks, embeds, and saves a document.\n- `POST /search` returns the closest stored passages with source filenames and chunk indexes.\n- `POST /ask` generates an answer from relevant retrieved passages through local Ollama and returns the supporting sources.\n- `GET /health` checks API availability.\n\nTo enable local semantic embeddings, install the optional model dependencies with:\n\n```bash\npython -m pip install -e ".[embeddings]"\n```\n\nThe first embedding run downloads the configured Sentence Transformers model. The SQLite store persists document metadata, chunk text, and vectors in a local database file; protect that file like any other personal document store. Search uses cosine ranking over stored vectors. Answer generation requires Ollama to be installed and running locally, with the configured model pulled. The model is instructed to treat retrieved document text as untrusted reference material rather than executable instructions.
+The API will be available at `http://127.0.0.1:8000`; interactive API documentation is at `/docs`.
+
+- `POST /documents/preview` extracts a safe text preview without saving it.
+- `POST /documents/ingest` extracts, chunks, embeds, and saves a document.
+- `POST /search` returns the closest stored passages with source filenames and chunk indexes.
+- `POST /ask` generates an answer from relevant retrieved passages through local Ollama and returns the supporting sources.
+- `GET /health` checks API availability.
+
+To enable local semantic embeddings, install the optional model dependencies with:
+
+```bash
+python -m pip install -e ".[embeddings]"
+```
+
+The first embedding run downloads the configured Sentence Transformers model. The SQLite store persists document metadata, chunk text, and vectors in a local database file; protect that file like any other personal document store. Search uses cosine ranking over stored vectors. Answer generation requires Ollama to be installed and running locally, with the configured model pulled. The model is instructed to treat retrieved document text as untrusted reference material rather than executable instructions.
 
 ## Quality and security principles
 

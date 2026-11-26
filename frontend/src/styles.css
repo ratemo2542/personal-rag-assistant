@@ -76,3 +76,15 @@ h2{font:700 18px Manrope,sans-serif;letter-spacing:-.02em;margin:0}
 footer{display:flex;justify-content:space-between;gap:12px;padding:25px 0 32px;margin-top:26px;border-top:1px solid rgba(255,255,255,.07);color:#686477;font:9px "DM Mono",monospace;letter-spacing:.1em}
 @media(max-width:800px){.shell{padding:0 20px}.intro{padding:48px 0 32px}.workspace{grid-template-columns:1fr}.library{order:1}.chat{order:2;min-height:520px}.conversation{min-height:320px}}
 @media(max-width:480px){.shell{padding:0 14px}.topbar{height:68px}.local-pill{font-size:8px}.intro{padding:38px 0 27px}h1{font-size:44px}.subhead{font-size:13px}.library,.chat{padding:18px}.chat{min-height:510px}footer{font-size:7px}}
+
+.library-list{margin-top:22px}
+.library-list-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;color:#d9d3e9;font-size:11px}
+.library-list-heading span{font:9px "DM Mono",monospace;color:#817a96;letter-spacing:.08em}
+.library-empty{font-size:10px;color:#817b91;padding:9px 0}
+.library-document{display:flex;align-items:center;gap:9px;padding:10px 0;border-top:1px solid rgba(255,255,255,.06)}
+.file-symbol{color:#a78bfa;font-size:15px}
+.library-document-info{min-width:0;flex:1}
+.library-document-info b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#d9d3e9;font-size:10px;font-weight:600}
+.library-document-info small{display:block;color:#817b91;font-size:9px;margin-top:4px}
+.delete-document{border:0;background:transparent;color:#827b92;font-size:17px;padding:3px 6px;border-radius:6px}
+.delete-document:hover{background:rgba(219,91,112,.12);color:#ff9eaa}

@@ -25,12 +25,19 @@ DATABASE_PATH = os.getenv("DATABASE_PATH", "data/personal_rag.sqlite3")
 EMBEDDING_MODEL = os.getenv(
     "EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"
 )
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:3b")
 embedder = SentenceTransformerEmbedder(EMBEDDING_MODEL)
+generator = OllamaGenerator(OLLAMA_BASE_URL, OLLAMA_MODEL)
 
 
 class SearchRequest(BaseModel):
     query: str = Field(min_length=2, max_length=2_000)
     limit: int = Field(default=5, ge=1, le=20)
+
+
+class AskRequest(SearchRequest):
+    pass
 
 
 def get_store() -> SQLiteVectorStore:

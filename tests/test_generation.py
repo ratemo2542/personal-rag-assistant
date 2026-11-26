@@ -1,4 +1,5 @@
 import asyncio
+import json
 
 import httpx
 import pytest
@@ -11,7 +12,7 @@ def test_ollama_answer_sends_untrusted_context_to_local_chat_api() -> None:
 
     async def handler(request: httpx.Request) -> httpx.Response:
         captured["url"] = str(request.url)
-        captured["payload"] = __import__("json").loads(request.content)
+        captured["payload"] = json.loads(request.content)
         return httpx.Response(
             200,
             json={"message": {"content": "The note says networks connect devices."}},

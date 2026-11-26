@@ -4,8 +4,8 @@ import json
 import math
 import sqlite3
 import uuid
-from dataclasses import dataclass
 from collections.abc import Sequence
+from dataclasses import dataclass
 from pathlib import Path
 
 

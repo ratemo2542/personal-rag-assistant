@@ -136,6 +136,20 @@ class SQLiteVectorStore:
             )
         return sorted(results, key=lambda item: item.score, reverse=True)[:limit]
 
+    def list_documents(self) -> list[dict[str, str | int]]:
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT documents.id, documents.filename, documents.created_at,
+                       COUNT(chunks.id) AS chunk_count
+                FROM documents
+                LEFT JOIN chunks ON chunks.document_id = documents.id
+                GROUP BY documents.id
+                ORDER BY documents.created_at DESC
+                """
+            ).fetchall()
+        return [dict(row) for row in rows]
+
     def delete_document(self, document_id: str) -> bool:
         with self._connect() as connection:
             cursor = connection.execute("DELETE FROM documents WHERE id = ?", (document_id,))

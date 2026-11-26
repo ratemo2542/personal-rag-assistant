@@ -46,6 +46,8 @@ The API will be available at `http://127.0.0.1:8000`; interactive API documentat
 
 - `POST /documents/preview` extracts a safe text preview without saving it.
 - `POST /documents/ingest` extracts, chunks, embeds, and saves a document.
+- `GET /documents` lists indexed documents and passage counts.
+- `DELETE /documents/{document_id}` removes a document and its indexed passages.
 - `POST /search` returns the closest stored passages with source filenames and chunk indexes.
 - `POST /ask` generates an answer from relevant retrieved passages through local Ollama and returns the supporting sources.
 - `GET /health` checks API availability.

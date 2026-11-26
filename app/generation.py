@@ -55,7 +55,8 @@ class OllamaGenerator:
         )
 
         try:
-            async with httpx.AsyncClient(\n                base_url=self.base_url, timeout=90.0, transport=self.transport\n            ) as client:
+            async with httpx.AsyncClient(
+                base_url=self.base_url, timeout=90.0, transport=self.transport\n            ) as client:
                 response = await client.post(
                     "/api/chat",
                     json={

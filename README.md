@@ -18,10 +18,11 @@ A local-first assistant for asking questions about your own documents. It is des
 
 1. Build and test the API foundation.
 2. Validate and extract uploaded documents.
-3. Split documents into traceable chunks and persist embeddings.
-4. Retrieve relevant chunks and return grounded answers with source references.
-5. Add the React chat and document-management interface.
-6. Add authentication, security hardening, observability, and deployment documentation.
+3. Split documents, generate local embeddings, and persist them in SQLite.
+4. Retrieve relevant passages through the `/search` endpoint with document and chunk references.
+5. Add grounded answer generation through a local Ollama model.
+6. Add the React chat and document-management interface.
+7. Add authentication, security hardening, observability, and deployment documentation.
 
 ## Initial setup
 
@@ -34,7 +35,7 @@ python -m pip install -e ".[dev]"
 uvicorn app.main:app --reload
 ```
 
-The API will be available at `http://127.0.0.1:8000`; interactive API documentation is at `/docs`.\n\nTo enable local semantic embeddings, install the optional model dependencies with:\n\n```bash\npython -m pip install -e ".[embeddings]"\n```\n\nThe first embedding run downloads the configured Sentence Transformers model. The SQLite store persists document metadata, chunk text, and vectors in a local database file; protect that file like any other personal document store.
+The API will be available at `http://127.0.0.1:8000`; interactive API documentation is at `/docs`.\n\n- `POST /documents/preview` extracts a safe text preview without saving it.\n- `POST /documents/ingest` extracts, chunks, embeds, and saves a document.\n- `POST /search` returns the closest stored passages with source filenames and chunk indexes.\n- `GET /health` checks API availability.\n\nTo enable local semantic embeddings, install the optional model dependencies with:\n\n```bash\npython -m pip install -e ".[embeddings]"\n```\n\nThe first embedding run downloads the configured Sentence Transformers model. The SQLite store persists document metadata, chunk text, and vectors in a local database file; protect that file like any other personal document store. Search is exact cosine ranking over the stored vectors; it does not generate a natural-language answer yet.
 
 ## Quality and security principles
 

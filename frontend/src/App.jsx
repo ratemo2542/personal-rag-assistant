@@ -53,6 +53,7 @@ export default function App() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || "Document upload failed.");
       setNotice(`Added ${data.filename} · ${data.chunks} searchable passage(s)`);
+      await loadDocuments();
       setFile(null);
       if (fileInput.current) fileInput.current.value = "";
     } catch (err) {
@@ -131,6 +132,16 @@ export default function App() {
             </button>
           </form>
           <div className="privacy-note"><span>◈</span><p><b>Local-first by design</b><br />Your files are processed by your local API and stored in your local database.</p></div>
+          <div className="library-list">
+            <div className="library-list-heading"><b>Your library</b><span>{documents.length} FILE{documents.length === 1 ? "" : "S"}</span></div>
+            {loadingDocuments ? <p className="library-empty">Loading library…</p> : documents.length === 0 ? <p className="library-empty">Your documents will appear here.</p> : documents.map((document) => (
+              <div className="library-document" key={document.id}>
+                <span className="file-symbol">▤</span>
+                <div className="library-document-info"><b>{document.filename}</b><small>{document.chunk_count} searchable passage(s)</small></div>
+                <button type="button" className="delete-document" onClick={() => deleteDocument(document.id)} aria-label={`Delete ${document.filename}`}>×</button>
+              </div>
+            ))}
+          </div>
           {notice && <p className="notice" role="status">{notice}</p>}
         </aside>
 

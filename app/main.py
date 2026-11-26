@@ -4,6 +4,7 @@ import os
 from typing import Annotated
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from app.chunking import split_text
@@ -18,6 +19,8 @@ app = FastAPI(
     description="Local-first document ingestion and source-grounded retrieval API.",
 )
 MAX_UPLOAD_BYTES = int(os.getenv("MAX_UPLOAD_BYTES", str(10 * 1024 * 1024)))
+if MAX_UPLOAD_BYTES < 1:
+    raise RuntimeError("MAX_UPLOAD_BYTES must be a positive integer.")
 DATABASE_PATH = os.getenv("DATABASE_PATH", "data/personal_rag.sqlite3")
 EMBEDDING_MODEL = os.getenv(
     "EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"
@@ -39,6 +42,9 @@ async def read_upload(file: UploadFile) -> tuple[str, bytes]:
     if not filename:
         await file.close()
         raise HTTPException(status_code=400, detail="A filename is required.")
+    if len(filename) > 255 or "\x00" in filename:
+        await file.close()
+        raise HTTPException(status_code=400, detail="Filename is invalid or too long.")
     data = await file.read(MAX_UPLOAD_BYTES + 1)
     await file.close()
     if len(data) > MAX_UPLOAD_BYTES:

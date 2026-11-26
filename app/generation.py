@@ -17,9 +17,11 @@ class OllamaGenerator:
         self,
         base_url: str = "http://127.0.0.1:11434",
         model: str = "llama3.2:3b",
+        transport: httpx.AsyncBaseTransport | None = None,
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.model = model
+        self.transport = transport
 
     async def answer(
         self,
@@ -53,7 +55,7 @@ class OllamaGenerator:
         )
 
         try:
-            async with httpx.AsyncClient(base_url=self.base_url, timeout=90.0) as client:
+            async with httpx.AsyncClient(\n                base_url=self.base_url, timeout=90.0, transport=self.transport\n            ) as client:
                 response = await client.post(
                     "/api/chat",
                     json={
@@ -70,7 +72,12 @@ class OllamaGenerator:
         except (httpx.HTTPError, ValueError) as exc:
             raise GenerationError("The local Ollama model could not answer the question.") from exc
 
-        answer = payload.get("message", {}).get("content")
+        if not isinstance(payload, dict):
+            raise GenerationError("The local model returned an invalid response.")
+        message = payload.get("message")
+        if not isinstance(message, dict):
+            raise GenerationError("The local model returned an invalid response.")
+        answer = message.get("content")
         if not isinstance(answer, str) or not answer.strip():
             raise GenerationError("The local model returned an empty or invalid answer.")
         return answer.strip()

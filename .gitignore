@@ -9,3 +9,5 @@ venv/
 *.sqlite3
 uploads/
 .DS_Store
+
+data/
